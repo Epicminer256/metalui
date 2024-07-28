@@ -13,9 +13,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/BurntSushi/toml"
 	"github.com/gdamore/tcell/v2"
 	"github.com/ncruces/zenity"
-	"github.com/pelletier/go-toml"
 	"github.com/rivo/tview"
 )
 
@@ -45,7 +45,7 @@ type MiscConfig struct {
 	SendErrors            bool `toml:"SendErrors"`
 }
 
-var config Config = Config{
+var config *Config = &Config{
 	General: GeneralConfig{
 		Name:           "BeamMP Server",
 		Port:           30814,
@@ -122,19 +122,18 @@ func main() {
 }
 
 func read_config() {
-	file, err := os.Open("ServerConfig.toml")
+
+	_, err := toml.DecodeFile("ServerConfig.toml", &config)
 	if err != nil {
 		log("Error opening config file")
 	}
-	toml.NewDecoder(file).Decode(&config)
 }
 
 func save_config(configFile *os.File) {
 	if configFile == nil {
-		// yeah don't look at this part. it kept adding more lines instead of replacing
-		os.Remove("ServerConfig.toml")
+
 		var err error
-		configFile, err = os.OpenFile("ServerConfig.toml", os.O_WRONLY, 0644)
+		configFile, err = os.Create("ServerConfig.toml")
 		if err != nil {
 			log("Could not create config file")
 			return

@@ -335,8 +335,9 @@ func remove_mod() {
 	for _, e := range entries {
 		if e.Name()[len(e.Name())-4:] == ".zip" {
 			remove_mod_menu.AddItem(e.Name(), strings.Join(mod_tags(e.Name()), ", "), 0, func() {
-				config.General.Map = "/levels/gridmap_v2/info.json"
-				log(e.Name())
+				os.Remove("Resources/Client/" + e.Name())
+				log("Removed " + e.Name())
+				remove_mod()
 			})
 		}
 
@@ -379,14 +380,14 @@ func settings() {
 				settings()
 			})
 		}).
-		AddItem("Server Description", "Deletes a mod from the server", 'd', func() {
+		AddItem("Server Description", "Tells people in the server browser about your server", 'd', func() {
 			spawn_prompt("Enter your server description", false, func(desc string) {
 				config.General.Description = desc
 				save_config(nil)
 				settings()
 			})
 		}).
-		AddItem("Max Players", "Sets the map for the server", 'p', func() {
+		AddItem("Max Players", "The max amount of players that can play the server", 'p', func() {
 			spawn_prompt("Enter your Max players", true, func(max string) {
 				if i, err := strconv.Atoi(max); err == nil {
 					config.General.MaxPlayers = i
@@ -446,7 +447,10 @@ func set_map() {
 		AddItem("Back", "Go back", 'b', main_menu)
 
 	for m := range getmaps() {
-		map_menu.AddItem(getmaps()[m], "Change the map to "+getmaps()[m], 0, main_menu)
+		map_menu.AddItem(getmaps()[m], "Change the map to "+getmaps()[m], 0, func() {
+			config.General.Map = getmaps()[m]
+			save_config(nil)
+		})
 	}
 	switch_menu(map_menu)
 }

@@ -131,6 +131,8 @@ func read_config() {
 
 func save_config(configFile *os.File) {
 	if configFile == nil {
+		// yeah don't look at this part. it kept adding more lines instead of replacing
+		os.Remove("ServerConfig.toml")
 		var err error
 		configFile, err = os.OpenFile("ServerConfig.toml", os.O_WRONLY, 0644)
 		if err != nil {
